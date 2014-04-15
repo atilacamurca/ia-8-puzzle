@@ -55,12 +55,13 @@ angular.module('ia8PuzzleApp')
                 var move_count = 0;
 
                 while (openset.length > 0) {
-                    var obj = openset.pop();
+                    var obj = openset.shift();
                     move_count++;
 
                     // se tiver resolvido, retorna
                     if (EightPuzzle.isSolved(obj)) {
                         console.log("resolved...");
+                        console.log(obj.toString());
                         return true;
                     } else {
                         console.log("not resolved yet...");
@@ -68,6 +69,7 @@ angular.module('ia8PuzzleApp')
 
                     var successors = this.generateMoves();
                     EightPuzzle.showMoves(successors);
+                    
                     var idx_open = -1;
                     var idx_closed = -1;
                     for (var i = 0; i < successors.length; i++) {
@@ -75,9 +77,38 @@ angular.module('ia8PuzzleApp')
                         // have we already seen this node?
                         idx_open = _.indexOf(openset, function (obj) { return EightPuzzle.equals(obj.matrix, move.matrix); });
                         idx_closed = _.indexOf(closedset, function (obj) { return EightPuzzle.equals(obj.matrix, move.matrix); });
-                        var hval = this.manhattanDistance(move);
+                        var hval = EightPuzzle.manhattanDistance(move);
+                        var fval = hval + move.depth;
+                        
+                        if (idx_closed === -1 && idx_open === -1) {
+                            move.hval = hval;
+                            openset.push(move);
+                        } else if (idx_open > -1) {
+                            var copy = openset[idx_open];
+                            if (fval < copy.hval + copy.depth) {
+                                // copia os valores do movimento para a cópia
+                                copy.hval = hval;
+                                copy.parent = move.parent;
+                                copy.depth = move.depth;
+                            }
+                        } else if (idx_closed > -1) {
+                            var copy = closedset[idx_closed];
+                            if (fval < copy.hval + copy.depth) {
+                                move.hval = hval;
+                                closedset.splice(idx_closed, 1);
+                                openset.push(move);
+                            }
+                        }
                     }
+                    
+                    closedset.push(obj);
+                    openset = _.sortBy(openset, function (obj) {
+                        return obj.hval + obj.depth;
+                    });
                 }
+                
+                // retorna null em caso de falha
+                return null;
             },
             /**
              * Encontra a linha e a coluna do elemento 0.
@@ -132,7 +163,8 @@ angular.module('ia8PuzzleApp')
                 this.matrix[to.row][to.col] = aux;
             },
             clone: function () {
-                //return JSON.parse(JSON.stringify(this));
+                // return JSON.parse(JSON.stringify(this));
+                // realiza cópia completa do objeto.
                 var _8puzzle = new EightPuzzle();
                 var len = this.matrix.length;
                 for (var i = 0; i < len; i++) {
@@ -160,9 +192,6 @@ angular.module('ia8PuzzleApp')
                     moves.push(swapAndClone(empty, free[i]));
                 }
                 return moves;
-            },
-            manhattanDistance: function (_8puzzle) {
-                var result = 0; // https://gist.github.com/flatline/838202#file-8puzzle-py-L185
             },
             toString: function () {
                 var res = '';
@@ -195,6 +224,26 @@ angular.module('ia8PuzzleApp')
             }
             console.log("expected: %d, eq_values: %d", expected, eq_values);
             return expected === eq_values;
+        };
+        
+        EightPuzzle.manhattanDistance = function (_8puzzle) {
+            var result = 0;
+            var len = _8puzzle.matrix.length;
+            for (var i = 0; i < len; i++) {
+                for (var j = 0; j < len; j++) {
+                    var value = _8puzzle.matrix[i][j] - 1;
+                    var target_col = value % 3;
+                    var target_row = value / 3;
+
+                    // tratar 0 (zero) como casa em branco
+                    if (target_row < 0) {
+                        target_row = 2;
+                    }
+
+                    result += Math.abs(target_row - i) + Math.abs(target_col - j);
+                }
+            }
+            return result;
         };
 
         EightPuzzle.showMoves = function (moves) {
