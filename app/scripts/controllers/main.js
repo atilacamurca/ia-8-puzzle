@@ -6,4 +6,5 @@ angular.module('ia8PuzzleApp')
         
         console.log(_8puzzle.shuffle());
         console.log(_8puzzle.toString());
+        console.log(_8puzzle.solve());
     });
