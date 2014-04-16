@@ -55,7 +55,7 @@ angular.module('ia8PuzzleApp')
                 var move_count = 0;
                 var limit = 0;
 
-                while (openset.length > 0 && limit < 100) {
+                while (openset.length > 0 && limit < 1000) {
                     var obj = openset.shift();
                     move_count++;
 
