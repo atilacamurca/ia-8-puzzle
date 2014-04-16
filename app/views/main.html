@@ -3,32 +3,38 @@
 </div>
 
 <div class="game">
-		<ul>
-			<li id="sq-1" class="square">
-				<div id="pc-1">1</div>
-			</li>
-			<li id="sq-2" class="square">
-				<div id="pc-2">2</div>
-			</li>
-			<li id="sq-3" class="square">
-				<div id="pc-3">3</div>
-			</li>
-			<li id="sq-4" class="square">
-				<div id="pc-4">4</div>
-			</li>
-			<li id="sq-5" class="square">
-				<div id="pc-5">5</div>
-			</li>
-			<li id="sq-6" class="square">
-				<div id="pc-6">6</div>
-			</li>
-			<li id="sq-7" class="square">
-				<div id="pc-7">7</div>
-			</li>
-			<li id="sq-8" class="square">
-				<div id="pc-8">8</div>
-			</li>
-			<li id="sq-9" class="square free">
-			</li>
-		</ul>
-	</div>
+    <ul>
+        <li id="sq-1" class="square">
+            <div id="pc-0-0">1</div>
+        </li>
+        <li id="sq-2" class="square">
+            <div id="pc-0-1">2</div>
+        </li>
+        <li id="sq-3" class="square">
+            <div id="pc-0-2">3</div>
+        </li>
+        <li id="sq-4" class="square">
+            <div id="pc-1-0">4</div>
+        </li>
+        <li id="sq-5" class="square">
+            <div id="pc-1-1">5</div>
+        </li>
+        <li id="sq-6" class="square">
+            <div id="pc-1-2">6</div>
+        </li>
+        <li id="sq-7" class="square">
+            <div id="pc-2-0">7</div>
+        </li>
+        <li id="sq-8" class="square">
+            <div id="pc-2-1">8</div>
+        </li>
+        <li id="sq-9" class="square">
+            <div id="pc-2-2"></div>
+        </li>
+    </ul>
+</div>
+
+<img src="images/Fry.png" alt="fry" style="position: absolute; top: 100px; display: none" id="fry"/>
+
+<button ng-click="shuffle()" class="btn btn-primary btn-lg">Shuffle!</button>
+<button ng-click="solve()" class="btn btn-success btn-lg">Solve!</button>

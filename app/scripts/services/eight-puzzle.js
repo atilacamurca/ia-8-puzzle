@@ -53,22 +53,23 @@ angular.module('ia8PuzzleApp')
                 var openset = [this];
                 var closedset = [];
                 var move_count = 0;
+                var limit = 0;
 
-                while (openset.length > 0) {
+                while (openset.length > 0 && limit < 100) {
                     var obj = openset.shift();
                     move_count++;
 
                     // se tiver resolvido, retorna
                     if (EightPuzzle.isSolved(obj)) {
-                        console.log("resolved...");
-                        console.log(obj.toString());
-                        return true;
+                        console.log("resolved with %d moves ...", move_count);
+                        return obj.generateSolutionPath([]);
                     } else {
                         console.log("not resolved yet...");
+                        //console.log(obj.toString());
                     }
 
-                    var successors = this.generateMoves();
-                    EightPuzzle.showMoves(successors);
+                    var successors = obj.generateMoves();
+                    //EightPuzzle.showMoves(successors);
                     
                     var idx_open = -1;
                     var idx_closed = -1;
@@ -105,6 +106,7 @@ angular.module('ia8PuzzleApp')
                     openset = _.sortBy(openset, function (obj) {
                         return obj.hval + obj.depth;
                     });
+                    limit++;
                 }
                 
                 // retorna null em caso de falha
@@ -177,21 +179,27 @@ angular.module('ia8PuzzleApp')
             generateMoves: function () {
                 var empty = this.findEmpty();
                 var free = this.getLegalMoves(empty);
-                var self = this;
-
-                function swapAndClone(from, to) {
-                    var clone = self.clone();
-                    clone.swap(from, to);
-                    clone.depth = self.depth + 1;
-                    clone.parent = self;
-                    return clone;
-                }
 
                 var moves = [];
                 for (var i = 0; i < free.length; i++) {
-                    moves.push(swapAndClone(empty, free[i]));
+                    moves.push(this.swapAndClone(empty, free[i]));
                 }
                 return moves;
+            },
+            swapAndClone: function(from, to) {
+                    var clone = this.clone();
+                    clone.swap(from, to);
+                    clone.depth = this.depth + 1;
+                    clone.parent = this;
+                    return clone;
+            },
+            generateSolutionPath: function (path) {
+                if (this.parent === null) {
+                    return path;
+                } else {
+                    path.push(this);
+                    return this.parent.generateSolutionPath(path);
+                }
             },
             toString: function () {
                 var res = '';
@@ -222,7 +230,7 @@ angular.module('ia8PuzzleApp')
                     }
                 }
             }
-            console.log("expected: %d, eq_values: %d", expected, eq_values);
+            //console.log("expected: %d, eq_values: %d", expected, eq_values);
             return expected === eq_values;
         };
         
@@ -233,9 +241,9 @@ angular.module('ia8PuzzleApp')
                 for (var j = 0; j < len; j++) {
                     var value = _8puzzle.matrix[i][j] - 1;
                     var target_col = value % 3;
-                    var target_row = value / 3;
+                    var target_row = Math.floor(value / 3);
 
-                    // tratar 0 (zero) como casa em branco
+                    // tratar 0 (zero) como casa em branco na linha 2
                     if (target_row < 0) {
                         target_row = 2;
                     }
